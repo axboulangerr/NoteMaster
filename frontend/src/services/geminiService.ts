@@ -21,6 +21,25 @@ class GeminiService {
     return this.genAI !== null && this.model !== null;
   }
 
+  // Tester la validité d'une clé API avec une requête simple
+  async testApiKey(apiKey: string): Promise<boolean> {
+    try {
+      const testGenAI = new GoogleGenerativeAI(apiKey);
+      const testModel = testGenAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      
+      // Test avec une requête très simple
+      const result = await testModel.generateContent("Hello");
+      const response = await result.response;
+      const text = response.text();
+      
+      // Si on arrive ici sans erreur, la clé est valide
+      return text.length > 0;
+    } catch (error: any) {
+      console.error('Erreur lors du test de la clé API:', error);
+      return false;
+    }
+  }
+
   // Fonction principale pour traiter les demandes de l'utilisateur
   async processRequest(prompt: string, selectedText?: string, fullContent?: string): Promise<string> {
     if (!this.isInitialized()) {

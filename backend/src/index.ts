@@ -5,6 +5,7 @@ import { authenticateToken } from './middleware';
 import authRoutes from './routes/auth';
 import fileRoutes from './routes/files';
 import convertRoutes from './routes/convert';
+import tagRoutes from './routes/tags';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 // Routes protégées (nécessitent une authentification)
 app.use('/api/files', authenticateToken, fileRoutes);
 app.use('/api/convert', authenticateToken, convertRoutes);
+app.use('/api/tags', authenticateToken, tagRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

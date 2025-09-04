@@ -231,45 +231,122 @@ export const Toolbar = styled.div<{ theme: 'light' | 'dark' }>`
   border-bottom: 1px solid ${props => props.theme === 'dark' ? '#4a5568' : '#e1e5e9'};
   flex-wrap: wrap;
   align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 `;
 
-export const ToolbarGroup = styled.div`
+export const ToolbarGroup = styled.div<{ theme?: 'light' | 'dark' }>`
   display: flex;
   gap: 0.25rem;
   align-items: center;
+  background: ${props => props.theme === 'dark' ? '#1a202c' : 'white'};
+  border: 1px solid ${props => props.theme === 'dark' ? '#4a5568' : '#e2e8f0'};
+  border-radius: 6px;
+  padding: 0.25rem;
   
-  &:not(:last-child)::after {
-    content: '';
-    width: 1px;
-    height: 20px;
-    background: #ddd;
-    margin-left: 0.5rem;
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 `;
 
-export const ToolbarButton = styled.button<{ active?: boolean; theme?: 'light' | 'dark' }>`
-  background: ${props => props.active ? '#667eea' : (props.theme === 'dark' ? '#4a5568' : 'white')};
-  color: ${props => props.active ? 'white' : (props.theme === 'dark' ? '#e2e8f0' : '#333')};
-  border: 1px solid ${props => props.theme === 'dark' ? '#4a5568' : '#ddd'};
+export const ToolbarButton = styled.button<{ 
+  active?: boolean; 
+  theme?: 'light' | 'dark';
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'info';
+}>`
+  background: ${props => {
+    if (props.active) return '#667eea';
+    if (props.variant === 'success') return '#28a745';
+    if (props.variant === 'warning') return '#ffc107';
+    if (props.variant === 'info') return '#17a2b8';
+    return props.theme === 'dark' ? '#4a5568' : 'white';
+  }};
+  color: ${props => {
+    if (props.active || props.variant) return 'white';
+    return props.theme === 'dark' ? '#e2e8f0' : '#333';
+  }};
+  border: 1px solid ${props => {
+    if (props.active) return '#667eea';
+    if (props.variant === 'success') return '#28a745';
+    if (props.variant === 'warning') return '#ffc107';
+    if (props.variant === 'info') return '#17a2b8';
+    return props.theme === 'dark' ? '#4a5568' : '#e2e8f0';
+  }};
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 0.25rem;
   min-width: 32px;
   justify-content: center;
+  position: relative;
   
   &:hover {
-    background: ${props => props.active ? '#5a6fd8' : (props.theme === 'dark' ? '#2d3748' : '#e9ecef')};
+    background: ${props => {
+      if (props.active) return '#5a6fd8';
+      if (props.variant === 'success') return '#218838';
+      if (props.variant === 'warning') return '#e0a800';
+      if (props.variant === 'info') return '#138496';
+      return props.theme === 'dark' ? '#2d3748' : '#f8f9fa';
+    }};
     transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
   &:active {
     transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
+
+  ${props => props.active && `
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 2px;
+      background: #667eea;
+      border-radius: 1px;
+    }
+  `}
+`;
+
+export const ToolbarSection = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+export const ToolbarDivider = styled.div<{ theme?: 'light' | 'dark' }>`
+  width: 1px;
+  height: 24px;
+  background: ${props => props.theme === 'dark' ? '#4a5568' : '#e2e8f0'};
+  margin: 0 0.5rem;
+`;
+
+export const ToolbarLabel = styled.span<{ theme?: 'light' | 'dark' }>`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${props => props.theme === 'dark' ? '#a0aec0' : '#666'};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 0.5rem;
+`;
+
+export const FormatIndicator = styled.span<{ isActive: boolean }>`
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${props => props.isActive ? '#28a745' : '#dc3545'};
+  margin-left: 0.25rem;
+  transition: background 0.2s ease;
 `;
 
 export const TitleInput = styled.input`

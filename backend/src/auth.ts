@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { dbManager } from './database';
+import { Database } from './database';
 import { User, AuthRequest, RegisterRequest, AuthResponse } from './types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -82,77 +82,40 @@ export class AuthService {
   }
 
   private async createUser(user: Omit<User, 'id' | 'created_at' | 'updated_at'>): Promise<User> {
-    return new Promise((resolve, reject) => {
-      const db = dbManager.getDatabase();
-      const stmt = db.prepare(
-        'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
-      );
-      
-      stmt.run([user.username, user.email, user.password_hash], function(err) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        
-        resolve({
-          id: this.lastID,
-          ...user
-        });
-      });
-      
-      stmt.finalize();
-    });
+    const result = Database.prepare(`
+      INSERT INTO users (username, email, password_hash, created_at, updated_at)
+      VALUES (?, ?, ?, datetime('now'), datetime('now'))
+    `).run(user.username, user.email, user.password_hash);
+
+    const newUser = Database.prepare(`
+      SELECT * FROM users WHERE id = ?
+    `).get(result.lastInsertRowid) as User;
+
+    return newUser;
   }
 
   private async findUserByUsername(username: string): Promise<User | null> {
-    return new Promise((resolve, reject) => {
-      const db = dbManager.getDatabase();
-      db.get(
-        'SELECT * FROM users WHERE username = ?',
-        [username],
-        (err, row: User) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(row || null);
-        }
-      );
-    });
+    const user = Database.prepare(`
+      SELECT * FROM users WHERE username = ?
+    `).get(username) as User | undefined;
+
+    return user || null;
   }
 
   private async findUserByUsernameOrEmail(username: string, email: string): Promise<User | null> {
-    return new Promise((resolve, reject) => {
-      const db = dbManager.getDatabase();
-      db.get(
-        'SELECT * FROM users WHERE username = ? OR email = ?',
-        [username, email],
-        (err, row: User) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(row || null);
-        }
-      );
-    });
+    const user = Database.prepare(`
+      SELECT * FROM users WHERE username = ? OR email = ?
+    `).get(username, email) as User | undefined;
+
+    return user || null;
   }
 
   async findUserById(id: number): Promise<User | null> {
-    return new Promise((resolve, reject) => {
-      const db = dbManager.getDatabase();
-      db.get(
-        'SELECT id, username, email, created_at, updated_at FROM users WHERE id = ?',
-        [id],
-        (err, row: User) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(row || null);
-        }
-      );
-    });
+    const user = Database.prepare(`
+      SELECT id, username, email, created_at, updated_at FROM users WHERE id = ?
+    `).get(id) as User | undefined;
+
+    return user || null;
   }
 }
 

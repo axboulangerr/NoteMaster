@@ -7,12 +7,23 @@ export interface User {
   updated_at?: string;
 }
 
+export interface Tag {
+  id?: number;
+  name: string;
+  color: string;
+  user_id: number;
+  created_at?: string;
+}
+
 export interface MarkdownFile {
   id?: number;
   user_id: number;
   title: string;
   content: string;
   file_path?: string;
+  is_archived?: boolean;
+  is_shared?: boolean;
+  tags?: Tag[];
   created_at?: string;
   updated_at?: string;
 }

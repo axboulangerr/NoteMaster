@@ -1,16 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { GlobalStyle } from './styles/GlobalStyles';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import Dashboard from './components/dashboard/Dashboard';
 import MarkdownEditor from './components/editor/MarkdownEditor';
-import './App.css';
 
 function App() {
   return (
     <AuthProvider>
+      <GlobalStyle />
       <Router>
         <div className="App">
           <Routes>

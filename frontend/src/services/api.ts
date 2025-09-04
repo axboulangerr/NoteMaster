@@ -4,7 +4,9 @@ import {
   AuthResponse, 
   LoginCredentials, 
   RegisterData, 
-  MarkdownFile 
+  MarkdownFile,
+  Tag,
+  User
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
@@ -49,8 +51,18 @@ export class ApiService {
   }
 
   // Gestion des fichiers
-  static async getFiles(searchTerm?: string): Promise<MarkdownFile[]> {
-    const params = searchTerm ? { search: searchTerm } : {};
+  static async getFiles(filters?: {
+    search?: string;
+    tags?: number[];
+    archived?: boolean;
+    shared?: boolean;
+  }): Promise<MarkdownFile[]> {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.tags?.length) params.append('tags', filters.tags.join(','));
+    if (filters?.archived !== undefined) params.append('archived', filters.archived.toString());
+    if (filters?.shared !== undefined) params.append('shared', filters.shared.toString());
+
     const response: AxiosResponse<ApiResponse<MarkdownFile[]>> = await api.get('/files', { params });
     return response.data.data!;
   }
@@ -97,6 +109,58 @@ export class ApiService {
   static async healthCheck(): Promise<any> {
     const response: AxiosResponse<ApiResponse> = await api.get('/health');
     return response.data;
+  }
+
+  // Gestion des étiquettes
+  static async getTags(): Promise<Tag[]> {
+    const response: AxiosResponse<ApiResponse<Tag[]>> = await api.get('/tags');
+    console.log(response);
+    return response.data.data!;
+  }
+
+  static async createTag(tag: Omit<Tag, 'id' | 'user_id' | 'created_at'>): Promise<Tag> {
+    const response: AxiosResponse<ApiResponse<Tag>> = await api.post('/tags', tag);
+    return response.data.data!;
+  }
+
+  static async updateTag(id: number, tag: Partial<Tag>): Promise<Tag> {
+    const response: AxiosResponse<ApiResponse<Tag>> = await api.put(`/tags/${id}`, tag);
+    return response.data.data!;
+  }
+
+  static async deleteTag(id: number): Promise<void> {
+    await api.delete(`/tags/${id}`);
+  }
+
+  // Gestion des étiquettes sur les fichiers
+  static async addTagToFile(fileId: number, tagId: number): Promise<void> {
+    await api.post(`/files/${fileId}/tags/${tagId}`);
+  }
+
+  static async removeTagFromFile(fileId: number, tagId: number): Promise<void> {
+    await api.delete(`/files/${fileId}/tags/${tagId}`);
+  }
+
+  // Gestion du profil utilisateur
+  static async getUserProfile(): Promise<User> {
+    const response: AxiosResponse<ApiResponse<User>> = await api.get('/auth/profile');
+    return response.data.data!;
+  }
+
+  static async updateUserProfile(userData: Partial<User>): Promise<User> {
+    const response: AxiosResponse<ApiResponse<User>> = await api.put('/auth/profile', userData);
+    return response.data.data!;
+  }
+
+  // Gestion des fichiers archivés
+  static async archiveFile(id: number): Promise<MarkdownFile> {
+    const response: AxiosResponse<ApiResponse<MarkdownFile>> = await api.post(`/files/${id}/archive`);
+    return response.data.data!;
+  }
+
+  static async unarchiveFile(id: number): Promise<MarkdownFile> {
+    const response: AxiosResponse<ApiResponse<MarkdownFile>> = await api.post(`/files/${id}/unarchive`);
+    return response.data.data!;
   }
 }
 

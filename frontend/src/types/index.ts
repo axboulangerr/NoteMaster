@@ -1,7 +1,9 @@
 export interface User {
   id: number;
-  username: string;
   email: string;
+  name?: string;
+  avatar?: string;
+  created_at?: string;
 }
 
 export interface AuthResponse {
@@ -22,12 +24,29 @@ export interface RegisterData {
 
 export interface MarkdownFile {
   id?: number;
-  user_id?: number;
   title: string;
   content: string;
-  file_path?: string;
   created_at?: string;
   updated_at?: string;
+  user_id?: number;
+  tags?: Tag[];
+  is_shared?: boolean;
+  is_archived?: boolean;
+  shared_with?: SharedUser[];
+}
+
+export interface Tag {
+  id?: number;
+  name: string;
+  color: string;
+  user_id?: number;
+  created_at?: string;
+}
+
+export interface SharedUser {
+  id: number;
+  email: string;
+  permission: 'view' | 'edit';
 }
 
 export interface ApiResponse<T = any> {
